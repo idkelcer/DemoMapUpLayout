@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.appbar);
-       // setSupportActionBar(toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.appbar);
+        setSupportActionBar(toolbar);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
