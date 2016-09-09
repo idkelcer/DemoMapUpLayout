@@ -1,3 +1,4 @@
+
 package com.example.hp.demouplayout;
 
 import android.Manifest;
@@ -42,8 +43,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -429,3 +428,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 }
+
