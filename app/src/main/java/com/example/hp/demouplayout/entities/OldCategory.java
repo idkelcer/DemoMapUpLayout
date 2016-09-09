@@ -1,17 +1,17 @@
-package com.example.hp.demouplayout;
+package com.example.hp.demouplayout.entities;
 
 import android.graphics.drawable.Drawable;
 
 /**
  * Created by kelvin on 07/09/16.
  */
-public class Category {
+public class OldCategory {
 
     int id;
     String title;
     Drawable drawable;
 
-    public Category(int id, Drawable drawable, String title){
+    public OldCategory(int id, Drawable drawable, String title){
 
         this.drawable = drawable;
         this.title = title;

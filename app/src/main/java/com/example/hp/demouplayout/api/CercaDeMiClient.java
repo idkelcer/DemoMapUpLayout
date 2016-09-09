@@ -1,19 +1,14 @@
 package com.example.hp.demouplayout.api;
 
-import android.util.JsonReader;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class PlaceClient {
+public class CercaDeMiClient {
 
     private Retrofit retrofit;
     private final static String BASE_URL = "http://dev.apimovil.clubelcomercio.pe/api/v1/";
 
-    public PlaceClient() {
+    public CercaDeMiClient() {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -21,7 +16,7 @@ public class PlaceClient {
                 .build();
     }
 
-    public PlaceService getPlaceService() {
-        return retrofit.create(PlaceService.class);
+    public CercaDeMiService getPlaceService() {
+        return retrofit.create(CercaDeMiService.class);
     }
 }

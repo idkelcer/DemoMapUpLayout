@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.hp.demouplayout.entities.Category;
 
 import java.util.List;
 
@@ -15,12 +16,12 @@ import java.util.List;
  */
 public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.MyViewHolder> {
 
-    private List<Category> moviesList;
+    private List<Category> categoryList;
     CategoryInterface categoryInterface;
 
-    public MenuListAdapter(CategoryInterface interf, List<Category> moviesList) {
+    public MenuListAdapter(CategoryInterface interf, List<Category> categories) {
         this.categoryInterface = interf;
-        this.moviesList = moviesList;
+        this.categoryList = categories;
     }
 
     @Override
@@ -33,10 +34,10 @@ public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.MyView
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        final Category category = moviesList.get(position);
+        final Category category = categoryList.get(position);
 
-        holder.textView.setText(category.getTitle());
-        holder.imageView.setImageDrawable(category.getDrawable());
+        holder.textView.setText(category.getNombre());
+        //holder.imageView.setImageDrawable(category.getDrawable());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,7 +51,7 @@ public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.MyView
 
     @Override
     public int getItemCount() {
-        return moviesList.size();
+        return categoryList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {

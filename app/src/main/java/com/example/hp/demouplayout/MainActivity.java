@@ -31,9 +31,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hp.demouplayout.api.CategoryResponse;
-import com.example.hp.demouplayout.api.PlaceClient;
+import com.example.hp.demouplayout.api.CercaDeMiClient;
 import com.example.hp.demouplayout.api.PlaceSearchResponse;
-import com.example.hp.demouplayout.api.PlaceService;
+import com.example.hp.demouplayout.api.CercaDeMiService;
+import com.example.hp.demouplayout.entities.Category;
+import com.example.hp.demouplayout.entities.OldCategory;
 import com.example.hp.demouplayout.entities.Place;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     double currentUserLatitude, currentUserLongitude;
     BottomSheetBehavior bsb;
     Toolbar toolbar;
+    List<OldCategory> oldCategoryList;
     List<Category> categoryList;
     PopupWindow popup;
 
@@ -93,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         setUpBottomSheet();
+
+        getCategoriesFromServer();
     }
 
     private void setUpBottomSheet() {
@@ -115,25 +120,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         setupMap();
         mMap.setOnMarkerClickListener(this);
+        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(-12.046374, -77.042793) , 10.0f) );
     }
 
     private void setupMap() {
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
-
-
-        /*LatLng latLng = new LatLng(-12.046374, -77.042793);
-        MarkerOptions userMarkerOptions = new MarkerOptions().position(latLng).title("Hello Maps ");
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-        mMap.addMarker(userMarkerOptions);
-
-        latLng = new LatLng(-12.046374, -77.052792);
-        userMarkerOptions = new MarkerOptions().position(latLng).title("Hello Maps ");
-        mMap.addMarker(userMarkerOptions);
-
-        latLng = new LatLng(-12.056375, -77.042793);
-        userMarkerOptions = new MarkerOptions().position(latLng).title("Hello Maps ");
-        mMap.addMarker(userMarkerOptions);*/
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                CODE_PERMISSION_FINE_LOCATION);
@@ -155,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
                                     PackageManager.PERMISSION_GRANTED) {
 
-                        Log.i(TAG, "position");
+                        Log.i(TAG, "in code permission fine location");
 
                         mMap.setMyLocationEnabled(true);
                         mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -177,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                                 userMarkerOptions = new MarkerOptions().position(latLng).title("")
                                         .icon((BitmapDescriptorFactory.fromResource(R.drawable.ubication)));;
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
                                 myPositionMarker = mMap.addMarker(userMarkerOptions);
 
                                 getPlacesFromServer(0);
@@ -240,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        if(marker.getTitle().equals(""))
+        if(marker.getTitle().isEmpty())
         {
             bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
             return false;
@@ -263,8 +255,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void getPlacesFromServer(int categoryId) {
 
-        PlaceClient placeClient = new PlaceClient();
-        PlaceService placeService = placeClient.getPlaceService();
+        Log.i(TAG, "category id " + categoryId);
+
+        CercaDeMiClient placeClient = new CercaDeMiClient();
+        CercaDeMiService placeService = placeClient.getPlaceService();
 
         Call<PlaceSearchResponse> call = placeService.searchPlaces(currentUserLatitude, currentUserLongitude, 2, categoryId);
 
@@ -278,20 +272,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     fillMapWithPlaces(placeSearchResponse);
 
-                    Log.i(TAG, "message " + placeSearchResponse.getData().size());
+                    Log.i(TAG, "message 1 " + placeSearchResponse.getData().size());
 
                     if(popup != null && popup.isShowing())
                         popup.dismiss();
                 } else {
 
-                    Log.i(TAG, "message " + response.message());
+                    Log.i(TAG, "message 2 " + response.message());
+
+                    if(popup != null && popup.isShowing())
+                        popup.dismiss();
                 }
             }
 
             @Override
             public void onFailure(Call<PlaceSearchResponse> call, Throwable t) {
 
-                Log.i(TAG, "message " + t.getLocalizedMessage());
+                Log.i(TAG, "message 3" + t.getLocalizedMessage());
                 if(popup != null && popup.isShowing())
                     popup.dismiss();
             }
@@ -333,12 +330,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         popup.setOutsideTouchable(true);
         popup.setFocusable(true);
-        //popup.setClippingEnabled(true);
-        //popup.setAnimationStyle(android.R.style.Widget_DeviceDefault_DropDownItem);
-        //popup.setAnimationStyle(android.R.style.TextAppearance_Holo_Widget_TextView_PopupMenu);
-        //popup.setAnimationStyle(android.R.style.Widget_Holo_Light_PopupMenu);
-        // Show anchored to button
-
         popup.setBackgroundDrawable(new ColorDrawable());
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -353,10 +344,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void setUpRecycler(View layout) {
 
-        setupMenuItems();
+        //setupMenuItems();
+        if(categoryList == null || categoryList.size() == 0){
+
+            Log.i(TAG, "error on menu list");
+            return;
+        }
 
         RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.recycler);
 
+        //MenuListAdapter mAdapter = new MenuListAdapter(this, oldCategoryList);
         MenuListAdapter mAdapter = new MenuListAdapter(this, categoryList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -368,34 +365,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         int drawableResourceId = getResources().getIdentifier("todas", "drawable", this.getPackageName());
 
-        categoryList = new ArrayList<>();
+        oldCategoryList = new ArrayList<>();
 
-        Category category = new Category(0, ContextCompat.getDrawable(this, drawableResourceId), "TODAS");
-        categoryList.add(category);
+        OldCategory category = new OldCategory(0, ContextCompat.getDrawable(this, drawableResourceId), "TODAS");
+        oldCategoryList.add(category);
 
-        category = new Category(8, ContextCompat.getDrawable(this, R.drawable.restau), "GASTRONOMÍA");
-        categoryList.add(category);
+        category = new OldCategory(8, ContextCompat.getDrawable(this, R.drawable.restau), "GASTRONOMÍA");
+        oldCategoryList.add(category);
 
-        category = new Category(10, ContextCompat.getDrawable(this, R.drawable.entrene), "CULTURA Y ENTRETENIMIENTO");
-        categoryList.add(category);
+        category = new OldCategory(10, ContextCompat.getDrawable(this, R.drawable.entrene), "CULTURA Y ENTRETENIMIENTO");
+        oldCategoryList.add(category);
 
-        category = new Category(1, ContextCompat.getDrawable(this, R.drawable.viaj), "TURISMO");
-        categoryList.add(category);
+        category = new OldCategory(1, ContextCompat.getDrawable(this, R.drawable.viaj), "TURISMO");
+        oldCategoryList.add(category);
 
-        category = new Category(7, ContextCompat.getDrawable(this, R.drawable.mod), "MODA Y BELLEZA");
-        categoryList.add(category);
+        category = new OldCategory(7, ContextCompat.getDrawable(this, R.drawable.mod), "MODA Y BELLEZA");
+        oldCategoryList.add(category);
 
-        category = new Category(2, ContextCompat.getDrawable(this, R.drawable.product), "PRODUCTOS Y SERVICIOS");
-        categoryList.add(category);
+        category = new OldCategory(2, ContextCompat.getDrawable(this, R.drawable.product), "PRODUCTOS Y SERVICIOS");
+        oldCategoryList.add(category);
 
-        category = new Category(9, ContextCompat.getDrawable(this, R.drawable.ed), "EDUCACIÓN");
-        categoryList.add(category);
+        category = new OldCategory(9, ContextCompat.getDrawable(this, R.drawable.ed), "EDUCACIÓN");
+        oldCategoryList.add(category);
     }
 
-    private void getCategoriesFromServer(){
+    private void getCategoriesFromServer() {
 
-        PlaceClient placeClient = new PlaceClient();
-        PlaceService placeService = placeClient.getPlaceService();
+        CercaDeMiClient placeClient = new CercaDeMiClient();
+        CercaDeMiService placeService = placeClient.getPlaceService();
 
         Call<CategoryResponse> call = placeService.getCategories();
 
@@ -410,21 +407,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         fillCategoryList(categoryResponse);
                 }else
                 {
-                    Log.i(TAG, response.message());
+                    Log.i(TAG, "message 4 " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<CategoryResponse> call, Throwable t) {
-                Log.i(TAG, t.getLocalizedMessage());
+                Log.i(TAG, "message 5 " + t.getLocalizedMessage());
             }
         });
     }
 
     private void fillCategoryList(CategoryResponse response) {
 
-        for(com.example.hp.demouplayout.entities.Category category: response.getData()){
+        categoryList = new ArrayList<>();
 
+        for(Category category: response.getData()){
+
+            categoryList.add(category);
         }
     }
 }
