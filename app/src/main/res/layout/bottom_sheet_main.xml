@@ -5,23 +5,39 @@
     android:layout_width="match_parent"
     android:layout_height="300dp"
     android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="@color/colorBottomSheet"
     app:layout_behavior="@string/bottom_sheet_behavior"
     app:behavior_hideable="true"
-    app:behavior_peekHeight="64dp" >
+    app:behavior_peekHeight="64dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:padding="16dp"
-        android:text="BOTTOM SHEET" />
+        android:gravity="center"
+        android:text="BENEFICIOS"/>
 
-    <TextView
+    <!--android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:gravity="center"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:padding="16dp"
-        android:text="Texto de prueba" />
+        android:background="#123456"
+        android:clipToPadding="false"
+        android:paddingLeft="40dp"
+        android:paddingRight="40dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"/-->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:clipToPadding="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingRight="30dp" />
 
 </LinearLayout>
