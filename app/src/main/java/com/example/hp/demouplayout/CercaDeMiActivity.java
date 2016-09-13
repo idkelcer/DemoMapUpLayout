@@ -110,10 +110,10 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
         pager.setAdapter(pageAdapter);
 
-        if (pageAdapter.getCount() != 1)
-            pager.setPageMargin(30);
-
         pageAdapter.notifyDataSetChanged();
+
+        if (pageAdapter.getCount() != 1)
+            pager.setPageMargin(10);
 
         bottomSheetLayout.setOnClickListener(null);
     }
@@ -241,9 +241,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
             bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
             return false;
         }
-
-
-        bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         Log.i(TAG, "snippet " + marker.getSnippet());
 
@@ -466,23 +463,20 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onResponse(Call<BenefitResponse> call, Response<BenefitResponse> response) {
 
-                if(response.isSuccessful()){
+                if(response.isSuccessful()) {
 
                     BenefitResponse benefitResponse = response.body();
 
-                    if(benefitResponse.getData().size() == 0)
-                    {
+                    if (benefitResponse.getData().size() == 0) {
+                        bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
                         Toast.makeText(toolbar.getContext(), "No hay beneficios", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-
                     List<Fragment> fragments = fillBenefitListFragment(benefitResponse.getData());
-
                     setUpBottomSheet(fragments);
-
                     Log.i(TAG, "message 6 " + response.message());
-
+                    bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
             }
 

@@ -29,8 +29,12 @@ public class PageAdapter extends FragmentStatePagerAdapter {
         return this.fragments.size();
     }
 
-    /*@Override
+    @Override
     public float getPageWidth(int position) {
-        return 0.65f;
-    }*/
+
+        if(getCount() == 1)
+            return 1f;
+        else
+            return 0.65f;
+    }
 }
