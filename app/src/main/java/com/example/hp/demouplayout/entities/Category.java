@@ -27,6 +27,8 @@ public class Category {
     @Expose
     private String icono;
 
+    private int drawable;
+
     /**
      *
      * @return
@@ -133,6 +135,14 @@ public class Category {
      */
     public void setIcono(String icono) {
         this.icono = icono;
+    }
+
+    public int getDrawable() {
+        return drawable;
+    }
+
+    public void setDrawable(int drawable) {
+        this.drawable = drawable;
     }
 
 }

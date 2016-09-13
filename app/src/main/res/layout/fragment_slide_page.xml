@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:src="@drawable/educacion"/>
+
+    <TextView
+        android:id="@+id/txtBenefit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="POLO MARINO"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@id/image"/>
+
+
+    <TextView
+        android:id="@+id/txtPoints"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=".........................................."
+        android:layout_below="@id/txtBenefit"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentLeft="true"
+        android:singleLine="false" />
+
+    <ImageView
+        android:id="@+id/likeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/educacion"
+        android:layout_below="@id/txtPoints"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/favoritos"
+        android:gravity="center"
+        android:layout_below="@id/txtPoints"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/likeImage" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:textSize="20sp" />
+    
+</RelativeLayout>

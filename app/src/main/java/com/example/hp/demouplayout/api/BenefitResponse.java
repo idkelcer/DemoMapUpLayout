@@ -1,14 +1,17 @@
 package com.example.hp.demouplayout.api;
 
+import com.example.hp.demouplayout.entities.Benefit;
 import com.example.hp.demouplayout.entities.BenefitData;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kelvin on 09/09/16.
  */
 public class BenefitResponse {
-
     @SerializedName("status")
     @Expose
     private Integer status;
@@ -17,7 +20,7 @@ public class BenefitResponse {
     private String message;
     @SerializedName("data")
     @Expose
-    private BenefitData data;
+    private List<Benefit> data = new ArrayList<>();
 
     /**
      *
@@ -60,7 +63,7 @@ public class BenefitResponse {
      * @return
      * The data
      */
-    public BenefitData getData() {
+    public List<Benefit> getData() {
         return data;
     }
 
@@ -69,8 +72,7 @@ public class BenefitResponse {
      * @param data
      * The data
      */
-    public void setData(BenefitData data) {
+    public void setData(List<Benefit> data) {
         this.data = data;
     }
-
 }

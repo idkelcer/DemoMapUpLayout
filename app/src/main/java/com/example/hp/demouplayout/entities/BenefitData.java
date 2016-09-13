@@ -14,9 +14,9 @@ public class BenefitData {
     @SerializedName("status")
     @Expose
     private Integer status;
-    @SerializedName("xbeneficios")
+    @SerializedName("benefits")
     @Expose
-    private List<Xbeneficio> xbeneficios = new ArrayList<>();
+    private List<Benefit> benefits = new ArrayList<>();
 
     /**
      *
@@ -39,19 +39,19 @@ public class BenefitData {
     /**
      *
      * @return
-     * The xbeneficios
+     * The benefits
      */
-    public List<Xbeneficio> getXbeneficios() {
-        return xbeneficios;
+    public List<Benefit> getBenefits() {
+        return benefits;
     }
 
     /**
      *
-     * @param xbeneficios
-     * The xbeneficios
+     * @param benefits
+     * The benefits
      */
-    public void setXbeneficios(List<Xbeneficio> xbeneficios) {
-        this.xbeneficios = xbeneficios;
+    public void setBenefits(List<Benefit> benefits) {
+        this.benefits = benefits;
     }
 
 }

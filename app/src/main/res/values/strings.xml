@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DemoUpLayout</string>
+    <string name="favoritos">Favoritos</string>
 </resources>
