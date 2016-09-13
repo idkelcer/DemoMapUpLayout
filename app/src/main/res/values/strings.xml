@@ -1,4 +1,18 @@
 <resources>
     <string name="app_name">CERCA DE MI</string>
     <string name="favoritos">Favoritos</string>
+
+    <string name="no_network_connection" translatable="false">No hay conexión a internet</string>
+    <string name="generic_server_down" translatable="false">Ha ocurrido un error</string>
+    <string name="generic_server_timeout" translatable="false">Ha ocurrido un error</string>
+    <string name="generic_error" translatable="false">No hay conexión a internet</string>
+    <string name="no_internet" translatable="false">No hay conexión a internet</string>
+    <string name="parsing_failed" translatable="false">Ha ocurrido un error</string>
+    <string name="auth_failed" translatable="false">Error de autenticacion</string>
+    <string name="slide_tutorial">Deslice para pasar\na la siguiente nota</string>
+    <string name="footer_note_text">Deslice para la siguiente nota</string>
+    <string name="dialog_update_title">Actualización disponible</string>
+    <string name="dialog_update_message">Una nueva versión de la aplicación está disponible, por favor actualice a la versión {{version}} ahora.</string>
+    <string name="dialog_update_ok">Actualizar</string>
+    <string name="dialog_update_skip">Omitir</string>
 </resources>

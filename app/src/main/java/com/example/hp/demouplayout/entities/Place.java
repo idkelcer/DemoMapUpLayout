@@ -8,37 +8,23 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Place {
 
-    @SerializedName("suscursal_id")
-    @Expose
-    private String suscursalId;
-    @SerializedName("establecimiento_id")
-    @Expose
-    private String establecimientoId;
-    @SerializedName("nombre")
-    @Expose
+
+    private int suscursalId;
+    private int establecimientoId;
     private String nombre;
-    @SerializedName("direccion")
-    @Expose
     private String direccion;
-    @SerializedName("latitud")
-    @Expose
-    private String latitud;
-    @SerializedName("longitud")
-    @Expose
-    private String longitud;
-    @SerializedName("tipo_beneficio_id")
-    @Expose
-    private String tipoBeneficioId;
-    @SerializedName("distance")
-    @Expose
-    private String distance;
+    private double latitud;
+    private double longitud;
+    private int tipoBeneficioId;
+    private double distance;
+
 
     /**
      *
      * @return
      * The suscursalId
      */
-    public String getSuscursalId() {
+    public int getSuscursalId() {
         return suscursalId;
     }
 
@@ -47,7 +33,7 @@ public class Place {
      * @param suscursalId
      * The suscursal_id
      */
-    public void setSuscursalId(String suscursalId) {
+    public void setSuscursalId(int suscursalId) {
         this.suscursalId = suscursalId;
     }
 
@@ -56,7 +42,8 @@ public class Place {
      * @return
      * The establecimientoId
      */
-    public String getEstablecimientoId() {
+
+    public int getEstablecimientoId() {
         return establecimientoId;
     }
 
@@ -65,7 +52,8 @@ public class Place {
      * @param establecimientoId
      * The establecimiento_id
      */
-    public void setEstablecimientoId(String establecimientoId) {
+
+    public void setEstablecimientoId(int establecimientoId) {
         this.establecimientoId = establecimientoId;
     }
 
@@ -74,6 +62,7 @@ public class Place {
      * @return
      * The nombre
      */
+
     public String getNombre() {
         return nombre;
     }
@@ -83,6 +72,7 @@ public class Place {
      * @param nombre
      * The nombre
      */
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -92,6 +82,7 @@ public class Place {
      * @return
      * The direccion
      */
+
     public String getDireccion() {
         return direccion;
     }
@@ -101,6 +92,7 @@ public class Place {
      * @param direccion
      * The direccion
      */
+
     public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
@@ -110,7 +102,8 @@ public class Place {
      * @return
      * The latitud
      */
-    public String getLatitud() {
+
+    public double getLatitud() {
         return latitud;
     }
 
@@ -119,7 +112,8 @@ public class Place {
      * @param latitud
      * The latitud
      */
-    public void setLatitud(String latitud) {
+
+    public void setLatitud(double latitud) {
         this.latitud = latitud;
     }
 
@@ -128,7 +122,8 @@ public class Place {
      * @return
      * The longitud
      */
-    public String getLongitud() {
+
+    public double getLongitud() {
         return longitud;
     }
 
@@ -137,7 +132,8 @@ public class Place {
      * @param longitud
      * The longitud
      */
-    public void setLongitud(String longitud) {
+
+    public void setLongitud(double longitud) {
         this.longitud = longitud;
     }
 
@@ -146,7 +142,8 @@ public class Place {
      * @return
      * The tipoBeneficioId
      */
-    public String getTipoBeneficioId() {
+
+    public int getTipoBeneficioId() {
         return tipoBeneficioId;
     }
 
@@ -155,7 +152,8 @@ public class Place {
      * @param tipoBeneficioId
      * The tipo_beneficio_id
      */
-    public void setTipoBeneficioId(String tipoBeneficioId) {
+
+    public void setTipoBeneficioId(int tipoBeneficioId) {
         this.tipoBeneficioId = tipoBeneficioId;
     }
 
@@ -164,7 +162,8 @@ public class Place {
      * @return
      * The distance
      */
-    public String getDistance() {
+
+    public double getDistance() {
         return distance;
     }
 
@@ -173,8 +172,8 @@ public class Place {
      * @param distance
      * The distance
      */
-    public void setDistance(String distance) {
+
+    public void setDistance(double distance) {
         this.distance = distance;
     }
-
 }

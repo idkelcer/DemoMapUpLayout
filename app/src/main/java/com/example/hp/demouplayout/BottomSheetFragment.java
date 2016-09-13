@@ -39,6 +39,8 @@ public class BottomSheetFragment extends Fragment {
 
         TextView benefitTextView = (TextView) view.findViewById(R.id.txtBenefit);
         benefitTextView.setText(benefit.getTitulo());
+        TextView chapitaTextView = (TextView) view.findViewById(R.id.txtChapita);
+        chapitaTextView.setText(benefit.getChapita());
 
         ImageLoader imageLoader = ClubRequestManager.getInstance(getContext()).getImageLoader();
 

@@ -2,6 +2,7 @@
 package com.example.hp.demouplayout;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
@@ -13,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -30,13 +32,14 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
+import com.android.volley.Response;
 import com.example.hp.demouplayout.adapter.MenuListAdapter;
 import com.example.hp.demouplayout.adapter.PageAdapter;
-import com.example.hp.demouplayout.api.BenefitResponse;
 import com.example.hp.demouplayout.api.CategoryResponse;
-import com.example.hp.demouplayout.api.CercaDeMiClient;
-import com.example.hp.demouplayout.api.PlaceSearchResponse;
-import com.example.hp.demouplayout.api.CercaDeMiService;
+import com.example.hp.demouplayout.api.KCategoryResponse;
+import com.example.hp.demouplayout.api.KPlaceResponse;
 import com.example.hp.demouplayout.entities.Benefit;
 import com.example.hp.demouplayout.entities.Category;
 import com.example.hp.demouplayout.entities.OldCategory;
@@ -50,12 +53,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, CategoryInterface {
 
@@ -72,6 +74,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     List<OldCategory> oldCategoryList;
     List<Category> categoryList;
     PopupWindow popup;
+    List<Place> places;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +107,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         getCategoriesFromServer();
     }
 
-    private void setUpBottomSheet(List<Fragment> fragments ) {
+    private void setUpBottomSheet(List<Fragment> fragments) {
 
         PageAdapter pageAdapter = new PageAdapter(getSupportFragmentManager(), fragments);
         ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
@@ -124,7 +127,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         mMap = googleMap;
         setupMap();
         mMap.setOnMarkerClickListener(this);
-        mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(-12.046374, -77.042793) , 10.0f) );
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-12.046374, -77.042793), 10.0f));
     }
 
     private void setupMap() {
@@ -132,7 +135,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-               CODE_PERMISSION_FINE_LOCATION);
+                CODE_PERMISSION_FINE_LOCATION);
     }
 
     @Override
@@ -167,12 +170,13 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                                 currentUserLatitude = location.getLatitude();
                                 currentUserLongitude = location.getLongitude();
 
-                                if(userPositionMarker != null)
+                                if (userPositionMarker != null)
                                     userPositionMarker.remove();
 
                                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                                 userMarkerOptions = new MarkerOptions().position(latLng).title("")
-                                        .icon((BitmapDescriptorFactory.fromResource(R.drawable.ubication)));;
+                                        .icon((BitmapDescriptorFactory.fromResource(R.drawable.ubication)));
+                                ;
                                 //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
                                 userPositionMarker = mMap.addMarker(userMarkerOptions);
 
@@ -236,15 +240,14 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        if(marker.getTitle().isEmpty())
-        {
+        if (marker.getTitle().isEmpty()) {
             bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
             return false;
         }
 
         Log.i(TAG, "snippet " + marker.getSnippet());
 
-        getBenefitsFromServer(Integer.parseInt(searchPlaceId(marker.getTitle())));
+        getBenefitsFromServer(searchPlaceId(marker.getTitle()));
 
         return false;
     }
@@ -259,79 +262,157 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         return fList;
     }*/
 
-    public void getPlacesFromServer(int categoryId) {
+    public void getPlacesFromServer(final int categoryId) {
 
         Log.i(TAG, "category id " + categoryId);
 
-        CercaDeMiClient placeClient = new CercaDeMiClient();
-        CercaDeMiService placeService = placeClient.getPlaceService();
+        String url = Constants.serviceUrl + "cercademi";
 
-        Call<PlaceSearchResponse> call = placeService.getPlaces(currentUserLatitude, currentUserLongitude, 2, categoryId);
 
-        call.enqueue(new Callback<PlaceSearchResponse>() {
+        String fullUrl = url + "?lat=" + currentUserLatitude + "&lng=" + currentUserLongitude + "&km=" + 2
+                + "&tipo_beneficio_id=" + categoryId;
+
+        //  String result = String.format(url +  "?lat=%1$.6f&lng=%2$.6f&km=%1$d&tipo_beneficio_id=%2$d",currentUserLatitude, currentUserLongitude, 2, categoryId);
+
+
+       /* JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
+                fullUrl, null,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(TAG, response.toString());
+
+                        if(response.has("error")){
+
+                        }else{
+
+
+                            KPlaceResponse kPlaceResponse = new KPlaceResponse(response);
+
+                            fillMapWithPlaces(kPlaceResponse.getData());
+
+                            Log.i(TAG, "message 1 " + kPlaceResponse.getData().size());
+
+                            if(popup != null && popup.isShowing())
+                                popup.dismiss();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
             @Override
-            public void onResponse(Call<PlaceSearchResponse> call, Response<PlaceSearchResponse> response) {
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
 
-                if (response.isSuccessful()) {
+            }
+        }) {
 
-                    PlaceSearchResponse placeSearchResponse = response.body();
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("lat", String.valueOf(currentUserLatitude));
+                params.put("lng", String.valueOf(currentUserLongitude));
+                params.put("km", String.valueOf(2));
+                params.put("tipo_beneficio_id", String.valueOf(categoryId));
 
-                    fillMapWithPlaces(placeSearchResponse);
+                return params;
+            }
 
-                    Log.i(TAG, "message 1 " + placeSearchResponse.getData().size());
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
 
-                    if(popup != null && popup.isShowing())
-                        popup.dismiss();
-                } else {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Ecclubsup-api-key", Constants.apiKey);
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+        };
 
-                    Log.i(TAG, "message 2 " + response.message());
+        Volley.newRequestQueue(getApplicationContext()).add(jsonObjReq);*/
+
+        ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, response.toString());
+
+                if(response.has("error")){
+
+                    try {
+                        showError(response.getString("error"));
+                    } catch (JSONException e) {
+                        Log.i(TAG, e.getLocalizedMessage());
+                    }
+                }else{
+
+                    KPlaceResponse kPlaceResponse = new KPlaceResponse(response);
+
+                    fillMapWithPlaces(kPlaceResponse.getData());
+
+                    Log.i(TAG, "message 1 " + kPlaceResponse.getData().size());
 
                     if(popup != null && popup.isShowing())
                         popup.dismiss();
                 }
             }
+        }, new Response.ErrorListener() {
 
             @Override
-            public void onFailure(Call<PlaceSearchResponse> call, Throwable t) {
+            public void onErrorResponse(VolleyError error) {
 
-                Log.i(TAG, "message 3" + t.getLocalizedMessage());
-                if(popup != null && popup.isShowing())
-                    popup.dismiss();
+                showError(VolleyErrorHelper.getMessage(error, CercaDeMiActivity.this));
+                Log.i(TAG, "message error " + error.getLocalizedMessage());
             }
         });
     }
 
-    List<Place> places;
+    private void showError(String errorMessage) {
 
-    private void fillMapWithPlaces(PlaceSearchResponse response) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage(errorMessage);
+        alertDialog.setPositiveButton("Reintentar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void fillMapWithPlaces(List<Place> response) {
 
         mMap.clear();
 
         LatLng latLng;
-        places = response.getData();
+        places = response;
 
-        for (Place place : response.getData()) {
-            latLng = new LatLng(Double.parseDouble(place.getLatitud()),Double.parseDouble(place.getLongitud()));
+        for (Place place : places) {
+            latLng = new LatLng(place.getLatitud(), place.getLongitud());
             MarkerOptions marker = new MarkerOptions().position(latLng)
-                                        .title(place.getNombre()).snippet(String.valueOf(place.getEstablecimientoId()));
+                    .title(place.getNombre()).snippet(String.valueOf(place.getEstablecimientoId()));
 
             mMap.addMarker(marker);
         }
 
-        if(userMarkerOptions != null)
+        if (userMarkerOptions != null)
             mMap.addMarker(userMarkerOptions);
 
     }
 
-    private String searchPlaceId(String s){
+    private int searchPlaceId(String s) {
 
-        for (Place place : places){
+        for (Place place : places) {
 
-            if(place.getNombre().equals(s))
+            if (place.getNombre().equals(s))
                 return place.getEstablecimientoId();
         }
 
-        return null;
+        return 0;
     }
 
     public void verticalDropDownIconMenu(MenuItem item) {
@@ -359,14 +440,14 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         int width = metrics.widthPixels;
 
         popup.showAsDropDown(toolbar, width, 0);
-        
+
         setUpRecycler(layout);
     }
 
     private void setUpRecycler(View layout) {
 
         //setupMenuItems();
-        if(categoryList == null || categoryList.size() == 0){
+        if (categoryList == null || categoryList.size() == 0) {
 
             Log.i(TAG, "error on menu list");
             return;
@@ -412,7 +493,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void getCategoriesFromServer() {
 
-        CercaDeMiClient placeClient = new CercaDeMiClient();
+        /*CercaDeMiClient placeClient = new CercaDeMiClient();
         CercaDeMiService placeService = placeClient.getPlaceService();
 
         Call<CategoryResponse> call = placeService.getCategories();
@@ -421,13 +502,12 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
 
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
 
-                       CategoryResponse categoryResponse =  response.body();
+                    CategoryResponse categoryResponse = response.body();
 
-                        fillCategoryList(categoryResponse);
-                }else
-                {
+                    fillCategoryList(categoryResponse);
+                } else {
                     Log.i(TAG, "message 4 " + response.message());
                 }
             }
@@ -436,10 +516,48 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
             public void onFailure(Call<CategoryResponse> call, Throwable t) {
                 Log.i(TAG, "message 5 " + t.getLocalizedMessage());
             }
+        });*/
+
+        String fullUrl = Constants.serviceUrl + "listTipobeneficio";
+
+        ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, response.toString());
+
+                if(response.has("error")){
+
+                    try {
+                        showError(response.getString("error"));
+                    } catch (JSONException e) {
+                        Log.i(TAG, e.getLocalizedMessage());
+                    }
+                }else{
+
+
+                    KCategoryResponse  kCategoryResponse = new KCategoryResponse(response);
+
+                    fillCategoryList(kCategoryResponse.getData());
+
+                    if(popup != null && popup.isShowing())
+                        popup.dismiss();
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                showError(VolleyErrorHelper.getMessage(error, CercaDeMiActivity.this));
+                Log.i(TAG, "message error " + error.getLocalizedMessage());
+            }
         });
+
+
     }
 
-    private void fillCategoryList(CategoryResponse response) {
+    private void fillCategoryList(List<Category> response) {
 
         categoryList = new ArrayList<>();
 
@@ -449,12 +567,12 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         cat.setId(0);
 
         categoryList.add(cat);
-        categoryList.addAll(response.getData());
+        categoryList.addAll(response);
     }
 
     private void getBenefitsFromServer(int placeID) {
 
-        CercaDeMiClient placeClient = new CercaDeMiClient();
+        /*CercaDeMiClient placeClient = new CercaDeMiClient();
         CercaDeMiService placeService = placeClient.getPlaceService();
 
         Call<BenefitResponse> call = placeService.getBenefitsBySubsidiary(placeID);
@@ -463,7 +581,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onResponse(Call<BenefitResponse> call, Response<BenefitResponse> response) {
 
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
 
                     BenefitResponse benefitResponse = response.body();
 
@@ -486,14 +604,14 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                 Log.i(TAG, "message 7 " + t.getLocalizedMessage());
 
             }
-        });
+        });*/
     }
 
     private List<Fragment> fillBenefitListFragment(List<Benefit> benefits) {
 
         List<Fragment> fList = new ArrayList<>();
 
-        for(int i = 0; i < benefits.size(); i++){
+        for (int i = 0; i < benefits.size(); i++) {
 
             fList.add(BottomSheetFragment.newInstance(benefits.get(i)));
         }

@@ -43,7 +43,7 @@ public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.Custom
     public void onBindViewHolder(final CustomViewHolder holder, int position) {
         final Category category = categoryList.get(position);
 
-        holder.textView.setText(category.getNombre());
+        holder.textView.setText(category.getNombre().toUpperCase());
         //holder.imageView.setImageDrawable(category.getDrawable());
 
         if(position == 0)

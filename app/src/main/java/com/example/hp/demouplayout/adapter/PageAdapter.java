@@ -35,6 +35,6 @@ public class PageAdapter extends FragmentStatePagerAdapter {
         if(getCount() == 1)
             return 1f;
         else
-            return 0.65f;
+            return 0.7f;
     }
 }
