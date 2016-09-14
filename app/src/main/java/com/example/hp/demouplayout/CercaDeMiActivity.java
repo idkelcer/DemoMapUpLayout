@@ -2,12 +2,19 @@
 package com.example.hp.demouplayout;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
@@ -23,10 +30,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -40,11 +49,10 @@ import com.example.hp.demouplayout.adapter.PageAdapter;
 import com.example.hp.demouplayout.api.BenefitResponse;
 import com.example.hp.demouplayout.api.CategoryResponse;
 import com.example.hp.demouplayout.api.PlaceResponse;
-import com.example.hp.demouplayout.api.PlaceResponse;
 import com.example.hp.demouplayout.entities.Benefit;
 import com.example.hp.demouplayout.entities.Category;
-import com.example.hp.demouplayout.entities.OldCategory;
 import com.example.hp.demouplayout.entities.Place;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -60,6 +68,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, CategoryInterface {
 
     private static final String TAG = "CercaDeMiActivity";
@@ -72,7 +81,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     double currentUserLatitude, currentUserLongitude;
     BottomSheetBehavior bsb;
     Toolbar toolbar;
-    List<OldCategory> oldCategoryList;
     List<Category> categoryList;
     PopupWindow popup;
     List<Place> places;
@@ -103,23 +111,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
-        //setUpBottomSheet();
-
         getCategoriesFromServer();
-    }
-
-    private void setUpBottomSheet(List<Fragment> fragments) {
-
-        PageAdapter pageAdapter = new PageAdapter(getSupportFragmentManager(), fragments);
-        ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
-        pager.setAdapter(pageAdapter);
-
-        pageAdapter.notifyDataSetChanged();
-
-        if (pageAdapter.getCount() != 1)
-            pager.setPageMargin(10);
-
-        bottomSheetLayout.setOnClickListener(null);
     }
 
     @Override
@@ -241,16 +233,34 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     public boolean onMarkerClick(Marker marker) {
 
+        if(marker.isInfoWindowShown()) {
+
+            bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
+            return false;
+        }
+
         if (marker.getTitle().isEmpty()) {
             bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
             return false;
         }
 
-        Log.i(TAG, "snippet " + marker.getSnippet());
-
         getBenefitsFromServer(searchPlaceId(marker.getTitle()));
 
         return false;
+    }
+
+    private void setUpBottomSheet(List<Fragment> fragments) {
+
+        PageAdapter pageAdapter = new PageAdapter(getSupportFragmentManager(), fragments);
+        ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
+        pager.setAdapter(pageAdapter);
+
+        pageAdapter.notifyDataSetChanged();
+
+        if (pageAdapter.getCount() != 1)
+            pager.setPageMargin(10);
+
+        bottomSheetLayout.setOnClickListener(null);
     }
 
 
@@ -259,68 +269,8 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         Log.i(TAG, "category id " + categoryId);
 
         String url = Constants.serviceUrl + "cercademi";
-
-
         String fullUrl = url + "?lat=" + currentUserLatitude + "&lng=" + currentUserLongitude + "&km=" + 2
                 + "&tipo_beneficio_id=" + categoryId;
-
-        //  String result = String.format(url +  "?lat=%1$.6f&lng=%2$.6f&km=%1$d&tipo_beneficio_id=%2$d",currentUserLatitude, currentUserLongitude, 2, categoryId);
-
-
-       /* JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
-                fullUrl, null,
-                new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d(TAG, response.toString());
-
-                        if(response.has("error")){
-
-                        }else{
-
-
-                            PlaceResponse kPlaceResponse = new PlaceResponse(response);
-
-                            fillMapWithPlaces(kPlaceResponse.getData());
-
-                            Log.i(TAG, "message 1 " + kPlaceResponse.getData().size());
-
-                            if(popup != null && popup.isShowing())
-                                popup.dismiss();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d(TAG, "Error: " + error.getMessage());
-
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("lat", String.valueOf(currentUserLatitude));
-                params.put("lng", String.valueOf(currentUserLongitude));
-                params.put("km", String.valueOf(2));
-                params.put("tipo_beneficio_id", String.valueOf(categoryId));
-
-                return params;
-            }
-
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Ecclubsup-api-key", Constants.apiKey);
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                return headers;
-            }
-        };
-
-        Volley.newRequestQueue(getApplicationContext()).add(jsonObjReq);*/
 
         ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null, new Response.Listener<JSONObject>() {
             @Override
@@ -438,7 +388,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void setUpRecycler(View layout) {
 
-        //setupMenuItems();
         if (categoryList == null || categoryList.size() == 0) {
 
             Log.i(TAG, "error on menu list");
@@ -447,7 +396,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
         RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.recycler);
 
-        //MenuListAdapter mAdapter = new MenuListAdapter(this, oldCategoryList);
         MenuListAdapter mAdapter = new MenuListAdapter(this, categoryList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -455,60 +403,8 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         recyclerView.setAdapter(mAdapter);
     }
 
-    private void setupMenuItems() {
-
-        int drawableResourceId = getResources().getIdentifier("todas", "drawable", this.getPackageName());
-
-        oldCategoryList = new ArrayList<>();
-
-        OldCategory category = new OldCategory(0, ContextCompat.getDrawable(this, drawableResourceId), "TODAS");
-        oldCategoryList.add(category);
-
-        category = new OldCategory(8, ContextCompat.getDrawable(this, R.drawable.restau), "GASTRONOMÍA");
-        oldCategoryList.add(category);
-
-        category = new OldCategory(10, ContextCompat.getDrawable(this, R.drawable.entrene), "CULTURA Y ENTRETENIMIENTO");
-        oldCategoryList.add(category);
-
-        category = new OldCategory(1, ContextCompat.getDrawable(this, R.drawable.viaj), "TURISMO");
-        oldCategoryList.add(category);
-
-        category = new OldCategory(7, ContextCompat.getDrawable(this, R.drawable.mod), "MODA Y BELLEZA");
-        oldCategoryList.add(category);
-
-        category = new OldCategory(2, ContextCompat.getDrawable(this, R.drawable.product), "PRODUCTOS Y SERVICIOS");
-        oldCategoryList.add(category);
-
-        category = new OldCategory(9, ContextCompat.getDrawable(this, R.drawable.ed), "EDUCACIÓN");
-        oldCategoryList.add(category);
-    }
-
     private void getCategoriesFromServer() {
 
-        /*CercaDeMiClient placeClient = new CercaDeMiClient();
-        CercaDeMiService placeService = placeClient.getPlaceService();
-
-        Call<CategoryResponse> call = placeService.getCategories();
-
-        call.enqueue(new Callback<CategoryResponse>() {
-            @Override
-            public void onResponse(Call<CategoryResponse> call, Response<CategoryResponse> response) {
-
-                if (response.isSuccessful()) {
-
-                    CategoryResponse categoryResponse = response.body();
-
-                    fillCategoryList(categoryResponse);
-                } else {
-                    Log.i(TAG, "message 4 " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<CategoryResponse> call, Throwable t) {
-                Log.i(TAG, "message 5 " + t.getLocalizedMessage());
-            }
-        });*/
         String url = Constants.serviceUrl + "listTipobeneficio";
 
         ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, url, null,
@@ -562,40 +458,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void getBenefitsFromServer(int placeID) {
 
-        /*CercaDeMiClient placeClient = new CercaDeMiClient();
-        CercaDeMiService placeService = placeClient.getPlaceService();
-
-        Call<BenefitResponse> call = placeService.getBenefitsBySubsidiary(placeID);
-
-        call.enqueue(new Callback<BenefitResponse>() {
-            @Override
-            public void onResponse(Call<BenefitResponse> call, Response<BenefitResponse> response) {
-
-                if (response.isSuccessful()) {
-
-                    BenefitResponse benefitResponse = response.body();
-
-                    if (benefitResponse.getData().size() == 0) {
-                        bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
-                        Toast.makeText(toolbar.getContext(), "No hay beneficios", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    List<Fragment> fragments = fillBenefitList(benefitResponse.getData());
-                    setUpBottomSheet(fragments);
-                    Log.i(TAG, "message 6 " + response.message());
-                    bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BenefitResponse> call, Throwable t) {
-
-                Log.i(TAG, "message 7 " + t.getLocalizedMessage());
-
-            }
-        });*/
-
         String url = Constants.serviceUrl + "beneficiosBysucursal";
         String fullUrl = url + "?establecimiento_id=" + placeID;
 
@@ -646,9 +508,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private List<Fragment> fillBenefitList(List<Benefit> benefits) {
-
-
-        Log.i(TAG, "fill benefit list");
 
         List<Fragment> fList = new ArrayList<>();
 

@@ -42,7 +42,7 @@ public class BottomSheetFragment extends Fragment {
         }*/
 
 
-        final View view = inflater.inflate(R.layout.fragment_slide_page, null, false);
+        final View view = inflater.inflate(R.layout.fragment_slide_page, container, false);
 
         TextView benefitTextView = (TextView) view.findViewById(R.id.txtBenefit);
         benefitTextView.setText(benefit.getTitulo());
