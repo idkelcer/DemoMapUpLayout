@@ -3,22 +3,16 @@ package com.example.hp.demouplayout.entities;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by kelvin on 09/09/16.
  */
-public class Benefit {
+public class Benefit implements Serializable{
 
-    @SerializedName("id")
-    @Expose
     private Integer id;
-    @SerializedName("titulo")
-    @Expose
     private String titulo;
-    @SerializedName("chapita")
-    @Expose
     private String chapita;
-    @SerializedName("path_logo")
-    @Expose
     private String pathLogo;
 
     /**

@@ -1,7 +1,6 @@
 package com.example.hp.demouplayout.api;
 
 import com.example.hp.demouplayout.entities.Benefit;
-import com.example.hp.demouplayout.entities.BenefitData;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

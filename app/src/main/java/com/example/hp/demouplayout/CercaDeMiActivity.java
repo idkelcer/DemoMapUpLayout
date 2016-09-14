@@ -37,7 +37,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.Response;
 import com.example.hp.demouplayout.adapter.MenuListAdapter;
 import com.example.hp.demouplayout.adapter.PageAdapter;
-import com.example.hp.demouplayout.api.CategoryResponse;
+import com.example.hp.demouplayout.api.KBenefitResponse;
 import com.example.hp.demouplayout.api.KCategoryResponse;
 import com.example.hp.demouplayout.api.KPlaceResponse;
 import com.example.hp.demouplayout.entities.Benefit;
@@ -252,15 +252,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         return false;
     }
 
-    /*private List<Fragment> getFragments() {
-
-        List<Fragment> fList = new ArrayList<>();
-        fList.add(BottomSheetFragment.newInstance("Fragment 1"));
-        fList.add(BottomSheetFragment.newInstance("Fragment 2"));
-        fList.add(BottomSheetFragment.newInstance("Fragment 3"));
-        fList.add(BottomSheetFragment.newInstance("Fragment 4"));
-        return fList;
-    }*/
 
     public void getPlacesFromServer(final int categoryId) {
 
@@ -336,14 +327,14 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
                 Log.d(TAG, response.toString());
 
-                if(response.has("error")){
+                if (response.has("error")) {
 
                     try {
                         showError(response.getString("error"));
                     } catch (JSONException e) {
                         Log.i(TAG, e.getLocalizedMessage());
                     }
-                }else{
+                } else {
 
                     KPlaceResponse kPlaceResponse = new KPlaceResponse(response);
 
@@ -351,7 +342,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
                     Log.i(TAG, "message 1 " + kPlaceResponse.getData().size());
 
-                    if(popup != null && popup.isShowing())
+                    if (popup != null && popup.isShowing())
                         popup.dismiss();
                 }
             }
@@ -517,44 +508,42 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                 Log.i(TAG, "message 5 " + t.getLocalizedMessage());
             }
         });*/
+        String url = Constants.serviceUrl + "listTipobeneficio";
 
-        String fullUrl = Constants.serviceUrl + "listTipobeneficio";
+        ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
 
-        ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
+                        Log.d(TAG, response.toString());
 
-                Log.d(TAG, response.toString());
+                        if (response.has("error")) {
 
-                if(response.has("error")){
+                            try {
+                                showError(response.getString("error"));
+                            } catch (JSONException e) {
+                                Log.i(TAG, e.getLocalizedMessage());
+                            }
+                        } else {
 
-                    try {
-                        showError(response.getString("error"));
-                    } catch (JSONException e) {
-                        Log.i(TAG, e.getLocalizedMessage());
+
+                            KCategoryResponse kCategoryResponse = new KCategoryResponse(response);
+
+                            fillCategoryList(kCategoryResponse.getData());
+
+                            if (popup != null && popup.isShowing())
+                                popup.dismiss();
+                        }
                     }
-                }else{
+                }, new Response.ErrorListener() {
 
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-                    KCategoryResponse  kCategoryResponse = new KCategoryResponse(response);
-
-                    fillCategoryList(kCategoryResponse.getData());
-
-                    if(popup != null && popup.isShowing())
-                        popup.dismiss();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-                showError(VolleyErrorHelper.getMessage(error, CercaDeMiActivity.this));
-                Log.i(TAG, "message error " + error.getLocalizedMessage());
-            }
-        });
-
-
+                        showError(VolleyErrorHelper.getMessage(error, CercaDeMiActivity.this));
+                        Log.i(TAG, "message error " + error.getLocalizedMessage());
+                    }
+                });
     }
 
     private void fillCategoryList(List<Category> response) {
@@ -591,7 +580,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                         return;
                     }
 
-                    List<Fragment> fragments = fillBenefitListFragment(benefitResponse.getData());
+                    List<Fragment> fragments = fillBenefitList(benefitResponse.getData());
                     setUpBottomSheet(fragments);
                     Log.i(TAG, "message 6 " + response.message());
                     bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -605,11 +594,65 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
             }
         });*/
+
+        String url = Constants.serviceUrl + "beneficiosBysucursal";
+        String fullUrl = url + "?establecimiento_id=" + placeID;
+
+        ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.d(TAG, response.toString());
+
+                        if (response.has("error")) {
+
+                            try {
+                                showError(response.getString("error"));
+                            } catch (JSONException e) {
+                                Log.i(TAG, e.getLocalizedMessage());
+                            }
+                        } else {
+
+                            KBenefitResponse kBenefitResponse = new KBenefitResponse(response);
+
+                            if (kBenefitResponse.getData().size() == 0) {
+
+                                bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
+                                Toast.makeText(toolbar.getContext(), "No hay beneficios", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            List<Fragment> fragments = fillBenefitList(kBenefitResponse.getData());
+                            setUpBottomSheet(fragments);
+                            Log.i(TAG, "message 6 ");
+                            bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+
+                            if (popup != null && popup.isShowing())
+                                popup.dismiss();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        showError(VolleyErrorHelper.getMessage(error, CercaDeMiActivity.this));
+                        Log.i(TAG, "message error " + error.getLocalizedMessage());
+                    }
+                });
     }
 
-    private List<Fragment> fillBenefitListFragment(List<Benefit> benefits) {
+    private List<Fragment> fillBenefitList(List<Benefit> benefits) {
+
+
+        Log.i(TAG, "fill benefit list");
 
         List<Fragment> fList = new ArrayList<>();
+
+        if(benefits.size() == 0)
+            return fList;
 
         for (int i = 0; i < benefits.size(); i++) {
 
