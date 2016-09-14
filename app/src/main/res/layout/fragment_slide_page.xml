@@ -71,7 +71,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/favorite_white" />
 
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,6 +79,32 @@
             android:layout_toRightOf="@+id/likeImage"
             android:text="@string/favoritos"
             android:textColor="@color/colorText" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp">
+
+            <ImageView
+                android:id="@+id/comollegarImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/txtComollegar"
+                android:layout_toStartOf="@+id/txtComollegar"
+                android:src="@drawable/map_icon" />
+
+            <TextView
+                android:id="@+id/txtComollegar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:text="Cómo llegar"
+                android:textColor="@color/colorText" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 

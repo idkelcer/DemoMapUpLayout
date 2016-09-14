@@ -2,19 +2,15 @@
 package com.example.hp.demouplayout;
 
 import android.Manifest;
-import android.content.Context;
+
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.support.annotation.DrawableRes;
+
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
@@ -30,12 +26,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -76,7 +72,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     private LinearLayout bottomSheetLayout;
     SupportMapFragment mapFragment;
     final int CODE_PERMISSION_FINE_LOCATION = 1;
-    Marker userPositionMarker;
+    Marker userPositionMarker, selectedMarker;
     MarkerOptions userMarkerOptions;
     double currentUserLatitude, currentUserLongitude;
     BottomSheetBehavior bsb;
@@ -233,10 +229,14 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        if(marker.isInfoWindowShown()) {
 
+        if(selectedMarker != null && selectedMarker.getId().equals(marker.getId())) {
+
+            Log.i(TAG, "visible");
             bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
-            return false;
+            selectedMarker = null;
+            marker.hideInfoWindow();
+            return true;
         }
 
         if (marker.getTitle().isEmpty()) {
@@ -245,6 +245,8 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         }
 
         getBenefitsFromServer(searchPlaceId(marker.getTitle()));
+
+        selectedMarker = marker;
 
         return false;
     }
@@ -423,7 +425,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                             }
                         } else {
 
-
                             CategoryResponse categoryResponse = new CategoryResponse(response);
 
                             fillCategoryList(categoryResponse.getData());
@@ -456,7 +457,9 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         categoryList.addAll(response);
     }
 
+
     private void getBenefitsFromServer(int placeID) {
+
 
         String url = Constants.serviceUrl + "beneficiosBysucursal";
         String fullUrl = url + "?establecimiento_id=" + placeID;
@@ -510,9 +513,6 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     private List<Fragment> fillBenefitList(List<Benefit> benefits) {
 
         List<Fragment> fList = new ArrayList<>();
-
-        if(benefits.size() == 0)
-            return fList;
 
         for (int i = 0; i < benefits.size(); i++) {
 
