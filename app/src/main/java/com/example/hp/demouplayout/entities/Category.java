@@ -8,23 +8,16 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Category {
 
-    @SerializedName("id")
-    @Expose
     private Integer id;
-    @SerializedName("nombre")
-    @Expose
+
     private String nombre;
-    @SerializedName("descripcion")
-    @Expose
+
     private Object descripcion;
-    @SerializedName("abreviado")
-    @Expose
+
     private String abreviado;
-    @SerializedName("slug")
-    @Expose
+
     private String slug;
-    @SerializedName("icono")
-    @Expose
+
     private String icono;
 
     private int drawable;
@@ -144,5 +137,4 @@ public class Category {
     public void setDrawable(int drawable) {
         this.drawable = drawable;
     }
-
 }

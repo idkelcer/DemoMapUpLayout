@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by kelvin on 13/09/16.
  */
-public class KPlaceResponse {
+public class PlaceResponse {
 
     private Integer status;
 
@@ -18,7 +18,7 @@ public class KPlaceResponse {
 
     private List<Place> data = new ArrayList<>();
 
-    public KPlaceResponse(JSONObject jsonObject){
+    public PlaceResponse(JSONObject jsonObject){
 
 
         try {

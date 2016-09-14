@@ -1,79 +1,62 @@
 package com.example.hp.demouplayout.api;
 
 import com.example.hp.demouplayout.entities.Category;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import com.example.hp.demouplayout.entities.Place;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by kelvin on 08/09/16.
+ * Created by kelvin on 13/09/16.
  */
 public class CategoryResponse {
 
-    @SerializedName("status")
-    @Expose
+
     private Integer status;
-    @SerializedName("message")
-    @Expose
+
     private String message;
-    @SerializedName("data")
-    @Expose
+
     private List<Category> data = new ArrayList<>();
 
-    /**
-     *
-     * @return
-     * The status
-     */
-    public Integer getStatus() {
-        return status;
+    public CategoryResponse(JSONObject jsonObject) {
+
+        try {
+
+            status = jsonObject.getInt("status");
+            message = jsonObject.getString("message");
+
+            JSONArray array = jsonObject.getJSONArray("data");
+
+            for (int i = 0; i < array.length(); i++) {
+
+                JSONObject jsonObject1 = (JSONObject) array.get(i);
+
+                Category category = new Category();
+
+                category.setId(jsonObject1.getInt("id"));
+                category.setNombre(jsonObject1.getString("nombre"));
+                category.setDescripcion(jsonObject1.getString("descripcion"));
+                category.setAbreviado(jsonObject1.getString("abreviado"));
+                category.setSlug(jsonObject1.getString("slug"));
+                category.setIcono(jsonObject1.getString("icono"));
+
+                data.add(category);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    /**
-     *
-     * @param status
-     * The status
-     */
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    /**
-     *
-     * @return
-     * The message
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
-     *
-     * @param message
-     * The message
-     */
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    /**
-     *
-     * @return
-     * The data
-     */
     public List<Category> getData() {
         return data;
     }
 
-    /**
-     *
-     * @param data
-     * The data
-     */
     public void setData(List<Category> data) {
         this.data = data;
     }
-
 }

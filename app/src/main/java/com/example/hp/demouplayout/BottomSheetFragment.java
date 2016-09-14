@@ -35,12 +35,11 @@ public class BottomSheetFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        if (savedInstanceState != null) {
+        /*if (savedInstanceState != null) {
             //probably orientation change
             Log.i(TAG , "on savedinstance state");
-
             benefit = (Benefit) savedInstanceState.getSerializable("BenefitData");
-        }
+        }*/
 
 
         final View view = inflater.inflate(R.layout.fragment_slide_page, null, false);
@@ -75,6 +74,6 @@ public class BottomSheetFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("BenefitData", benefit);
+       // outState.putSerializable("BenefitData", benefit);
     }
 }

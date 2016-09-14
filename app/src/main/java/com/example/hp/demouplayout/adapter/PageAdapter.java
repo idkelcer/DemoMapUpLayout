@@ -1,5 +1,6 @@
 package com.example.hp.demouplayout.adapter;
 
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -36,5 +37,10 @@ public class PageAdapter extends FragmentStatePagerAdapter {
             return 1f;
         else
             return 0.7f;
+    }
+
+    @Override
+    public Parcelable saveState() {
+        return null;
     }
 }

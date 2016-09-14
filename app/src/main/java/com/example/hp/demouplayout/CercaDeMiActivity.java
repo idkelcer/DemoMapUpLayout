@@ -37,9 +37,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.Response;
 import com.example.hp.demouplayout.adapter.MenuListAdapter;
 import com.example.hp.demouplayout.adapter.PageAdapter;
-import com.example.hp.demouplayout.api.KBenefitResponse;
-import com.example.hp.demouplayout.api.KCategoryResponse;
-import com.example.hp.demouplayout.api.KPlaceResponse;
+import com.example.hp.demouplayout.api.BenefitResponse;
+import com.example.hp.demouplayout.api.CategoryResponse;
+import com.example.hp.demouplayout.api.PlaceResponse;
+import com.example.hp.demouplayout.api.PlaceResponse;
 import com.example.hp.demouplayout.entities.Benefit;
 import com.example.hp.demouplayout.entities.Category;
 import com.example.hp.demouplayout.entities.OldCategory;
@@ -79,7 +80,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.appbar);
@@ -279,7 +280,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                         }else{
 
 
-                            KPlaceResponse kPlaceResponse = new KPlaceResponse(response);
+                            PlaceResponse kPlaceResponse = new PlaceResponse(response);
 
                             fillMapWithPlaces(kPlaceResponse.getData());
 
@@ -336,11 +337,11 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 } else {
 
-                    KPlaceResponse kPlaceResponse = new KPlaceResponse(response);
+                    PlaceResponse placeResponse = new PlaceResponse(response);
 
-                    fillMapWithPlaces(kPlaceResponse.getData());
+                    fillMapWithPlaces(placeResponse.getData());
 
-                    Log.i(TAG, "message 1 " + kPlaceResponse.getData().size());
+                    Log.i(TAG, "message 1 " + placeResponse.getData().size());
 
                     if (popup != null && popup.isShowing())
                         popup.dismiss();
@@ -527,9 +528,9 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                         } else {
 
 
-                            KCategoryResponse kCategoryResponse = new KCategoryResponse(response);
+                            CategoryResponse categoryResponse = new CategoryResponse(response);
 
-                            fillCategoryList(kCategoryResponse.getData());
+                            fillCategoryList(categoryResponse.getData());
 
                             if (popup != null && popup.isShowing())
                                 popup.dismiss();
@@ -614,16 +615,16 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                             }
                         } else {
 
-                            KBenefitResponse kBenefitResponse = new KBenefitResponse(response);
+                            BenefitResponse benefitResponse = new BenefitResponse(response);
 
-                            if (kBenefitResponse.getData().size() == 0) {
+                            if (benefitResponse.getData().size() == 0) {
 
                                 bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
                                 Toast.makeText(toolbar.getContext(), "No hay beneficios", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
-                            List<Fragment> fragments = fillBenefitList(kBenefitResponse.getData());
+                            List<Fragment> fragments = fillBenefitList(benefitResponse.getData());
                             setUpBottomSheet(fragments);
                             Log.i(TAG, "message 6 ");
                             bsb.setState(BottomSheetBehavior.STATE_COLLAPSED);
