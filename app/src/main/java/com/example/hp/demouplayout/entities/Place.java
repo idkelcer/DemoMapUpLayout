@@ -1,7 +1,6 @@
 package com.example.hp.demouplayout.entities;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import android.graphics.Bitmap;
 
 /**
  * Created by HP on 06/09/2016.
@@ -17,30 +16,26 @@ public class Place {
     private double longitud;
     private int tipoBeneficioId;
     private double distance;
+    private String iconUrl;
+    private Bitmap bitmap;
 
 
     /**
-     *
-     * @return
-     * The suscursalId
+     * @return The suscursalId
      */
     public int getSuscursalId() {
         return suscursalId;
     }
 
     /**
-     *
-     * @param suscursalId
-     * The suscursal_id
+     * @param suscursalId The suscursal_id
      */
     public void setSuscursalId(int suscursalId) {
         this.suscursalId = suscursalId;
     }
 
     /**
-     *
-     * @return
-     * The establecimientoId
+     * @return The establecimientoId
      */
 
     public int getEstablecimientoId() {
@@ -48,9 +43,7 @@ public class Place {
     }
 
     /**
-     *
-     * @param establecimientoId
-     * The establecimiento_id
+     * @param establecimientoId The establecimiento_id
      */
 
     public void setEstablecimientoId(int establecimientoId) {
@@ -58,9 +51,7 @@ public class Place {
     }
 
     /**
-     *
-     * @return
-     * The nombre
+     * @return The nombre
      */
 
     public String getNombre() {
@@ -68,9 +59,7 @@ public class Place {
     }
 
     /**
-     *
-     * @param nombre
-     * The nombre
+     * @param nombre The nombre
      */
 
     public void setNombre(String nombre) {
@@ -78,9 +67,7 @@ public class Place {
     }
 
     /**
-     *
-     * @return
-     * The direccion
+     * @return The direccion
      */
 
     public String getDireccion() {
@@ -88,9 +75,7 @@ public class Place {
     }
 
     /**
-     *
-     * @param direccion
-     * The direccion
+     * @param direccion The direccion
      */
 
     public void setDireccion(String direccion) {
@@ -98,9 +83,7 @@ public class Place {
     }
 
     /**
-     *
-     * @return
-     * The latitud
+     * @return The latitud
      */
 
     public double getLatitud() {
@@ -108,9 +91,7 @@ public class Place {
     }
 
     /**
-     *
-     * @param latitud
-     * The latitud
+     * @param latitud The latitud
      */
 
     public void setLatitud(double latitud) {
@@ -118,9 +99,7 @@ public class Place {
     }
 
     /**
-     *
-     * @return
-     * The longitud
+     * @return The longitud
      */
 
     public double getLongitud() {
@@ -128,9 +107,7 @@ public class Place {
     }
 
     /**
-     *
-     * @param longitud
-     * The longitud
+     * @param longitud The longitud
      */
 
     public void setLongitud(double longitud) {
@@ -138,9 +115,7 @@ public class Place {
     }
 
     /**
-     *
-     * @return
-     * The tipoBeneficioId
+     * @return The tipoBeneficioId
      */
 
     public int getTipoBeneficioId() {
@@ -148,9 +123,7 @@ public class Place {
     }
 
     /**
-     *
-     * @param tipoBeneficioId
-     * The tipo_beneficio_id
+     * @param tipoBeneficioId The tipo_beneficio_id
      */
 
     public void setTipoBeneficioId(int tipoBeneficioId) {
@@ -158,9 +131,7 @@ public class Place {
     }
 
     /**
-     *
-     * @return
-     * The distance
+     * @return The distance
      */
 
     public double getDistance() {
@@ -168,12 +139,26 @@ public class Place {
     }
 
     /**
-     *
-     * @param distance
-     * The distance
+     * @param distance The distance
      */
 
     public void setDistance(double distance) {
         this.distance = distance;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 }

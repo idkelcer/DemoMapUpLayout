@@ -1,4 +1,4 @@
-package com.example.hp.demouplayout.api;
+package com.example.hp.demouplayout.entities;
 
 import com.example.hp.demouplayout.entities.Benefit;
 import com.example.hp.demouplayout.entities.Category;

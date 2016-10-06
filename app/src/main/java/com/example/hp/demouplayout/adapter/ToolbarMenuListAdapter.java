@@ -21,12 +21,12 @@ import java.util.List;
 /**
  * Created by kelvin on 07/09/16.
  */
-public class MenuListAdapter extends RecyclerView.Adapter<MenuListAdapter.CustomViewHolder> {
+public class ToolbarMenuListAdapter extends RecyclerView.Adapter<ToolbarMenuListAdapter.CustomViewHolder> {
 
     private List<Category> categoryList;
     CategoryInterface categoryInterface;
 
-    public MenuListAdapter(CategoryInterface interf, List<Category> categories) {
+    public ToolbarMenuListAdapter(CategoryInterface interf, List<Category> categories) {
         this.categoryInterface = interf;
         this.categoryList = categories;
     }

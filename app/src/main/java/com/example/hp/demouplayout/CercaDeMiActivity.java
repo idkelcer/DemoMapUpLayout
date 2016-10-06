@@ -5,12 +5,15 @@ import android.Manifest;
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
@@ -40,11 +43,11 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.Response;
-import com.example.hp.demouplayout.adapter.MenuListAdapter;
+import com.example.hp.demouplayout.adapter.ToolbarMenuListAdapter;
 import com.example.hp.demouplayout.adapter.PageAdapter;
-import com.example.hp.demouplayout.api.BenefitResponse;
-import com.example.hp.demouplayout.api.CategoryResponse;
-import com.example.hp.demouplayout.api.PlaceResponse;
+import com.example.hp.demouplayout.entities.BenefitResponse;
+import com.example.hp.demouplayout.entities.CategoryResponse;
+import com.example.hp.demouplayout.entities.PlaceResponse;
 import com.example.hp.demouplayout.entities.Benefit;
 import com.example.hp.demouplayout.entities.Category;
 import com.example.hp.demouplayout.entities.Place;
@@ -61,6 +64,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,6 +112,26 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         });
 
         getCategoriesFromServer();
+
+        inflatePopupMenu();
+    }
+
+    private void inflatePopupMenu() {
+
+        View layout = getLayoutInflater().inflate(R.layout.popup_menu_demo, null);
+        popup = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+       /* PopupWindow popup = new PopupWindow(this);
+        View layout = getLayoutInflater().inflate(R.layout.popup_menu_demo, null);
+        popup.setContentView(layout);
+        // Set content width and height
+        popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+        popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);*/
+        // Closes the popup window when touch outside of it - when looses focus
+
+        popup.setOutsideTouchable(true);
+        popup.setFocusable(true);
+        popup.setBackgroundDrawable(new ColorDrawable());
     }
 
     @Override
@@ -229,8 +253,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-
-        if(selectedMarker != null && selectedMarker.getId().equals(marker.getId())) {
+        if (selectedMarker != null && selectedMarker.getId().equals(marker.getId())) {
 
             Log.i(TAG, "visible");
             bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -265,14 +288,13 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         bottomSheetLayout.setOnClickListener(null);
     }
 
-
     public void getPlacesFromServer(final int categoryId) {
 
         Log.i(TAG, "category id " + categoryId);
 
         String url = Constants.serviceUrl + "cercademi";
         String fullUrl = url + "?lat=" + currentUserLatitude + "&lng=" + currentUserLongitude + "&km=" + 2
-                + "&tipo_beneficio_id=" + categoryId;
+                + "&tipo_beneficio_id=" + categoryId + "&session=8d1f0c0c975be23cd963ce24b3ffddc7";
 
         ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null, new Response.Listener<JSONObject>() {
             @Override
@@ -332,7 +354,10 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
         mMap.clear();
 
-        LatLng latLng;
+        response = setUrlIconToPlaces(response);
+
+        new GetBitmap().execute(response);
+        /*LatLng latLng;
         places = response;
 
         for (Place place : places) {
@@ -344,8 +369,22 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         }
 
         if (userMarkerOptions != null)
-            mMap.addMarker(userMarkerOptions);
+            mMap.addMarker(userMarkerOptions);*/
 
+    }
+
+    private List<Place> setUrlIconToPlaces(List<Place> response) {
+
+        for (Place r : response) {
+
+            for (Category c : categoryList) {
+
+                if (r.getTipoBeneficioId() == c.getId())
+                    r.setIconUrl(c.getIcono());
+            }
+        }
+
+        return response;
     }
 
     private int searchPlaceId(String s) {
@@ -361,34 +400,20 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
     public void verticalDropDownIconMenu(MenuItem item) {
 
+        Log.i(TAG, "verticaldropdown");
+
         bsb.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-        View layout = getLayoutInflater().inflate(R.layout.popup_menu_demo, null);
-        popup = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-
-       /* PopupWindow popup = new PopupWindow(this);
-        View layout = getLayoutInflater().inflate(R.layout.popup_menu_demo, null);
-        popup.setContentView(layout);
-        // Set content width and height
-        popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);*/
-        // Closes the popup window when touch outside of it - when looses focus
-
-        popup.setOutsideTouchable(true);
-        popup.setFocusable(true);
-        popup.setBackgroundDrawable(new ColorDrawable());
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int height = metrics.heightPixels;
         int width = metrics.widthPixels;
 
         popup.showAsDropDown(toolbar, width, 0);
-
-        setUpRecycler(layout);
     }
 
-    private void setUpRecycler(View layout) {
+    private void setUpMenuPopupRecycler() {
+
+        View layout = popup.getContentView();
 
         if (categoryList == null || categoryList.size() == 0) {
 
@@ -398,7 +423,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
         RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.recycler);
 
-        MenuListAdapter mAdapter = new MenuListAdapter(this, categoryList);
+        ToolbarMenuListAdapter mAdapter = new ToolbarMenuListAdapter(this, categoryList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -407,7 +432,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void getCategoriesFromServer() {
 
-        String url = Constants.serviceUrl + "listTipobeneficio";
+        String url = Constants.serviceUrl + "listTipobeneficio?session=8d1f0c0c975be23cd963ce24b3ffddc7";
 
         ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -444,6 +469,7 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
                 });
     }
 
+
     private void fillCategoryList(List<Category> response) {
 
         categoryList = new ArrayList<>();
@@ -455,14 +481,14 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
 
         categoryList.add(cat);
         categoryList.addAll(response);
-    }
 
+        setUpMenuPopupRecycler();
+    }
 
     private void getBenefitsFromServer(int placeID) {
 
-
         String url = Constants.serviceUrl + "beneficiosBysucursal";
-        String fullUrl = url + "?establecimiento_id=" + placeID;
+        String fullUrl = url + "?establecimiento_id=" + placeID + "&session=8d1f0c0c975be23cd963ce24b3ffddc7";
 
         ClubRequestManager.getInstance(this).performJsonRequest(Request.Method.GET, fullUrl, null,
                 new Response.Listener<JSONObject>() {
@@ -520,6 +546,59 @@ public class CercaDeMiActivity extends AppCompatActivity implements OnMapReadyCa
         }
 
         return fList;
+    }
+
+    public class GetBitmap extends AsyncTask<List<Place>, Void, List<Place>> {
+
+        protected List<Place> doInBackground(List<Place>... passing) {
+
+            List<Place> passed = passing[0]; //get passed arraylist
+
+            //Some calculations...
+            URL url;
+            try {
+
+                for (Place p : passed) {
+                    Log.i(TAG, "icon  url " + p.getIconUrl());
+                    if (p.getIconUrl() != null) {
+                        url = new URL(p.getIconUrl());
+                        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        p.setBitmap(bmp);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return passed; //return result
+        }
+
+        protected void onPostExecute(List<Place> result) {
+
+            Log.i(TAG, "size " + result.size());
+
+            LatLng latLng;
+            places = result;
+
+            for (Place place : places) {
+                latLng = new LatLng(place.getLatitud(), place.getLongitud());
+                MarkerOptions marker = new MarkerOptions().position(latLng)
+                        .title(place.getNombre()).snippet(String.valueOf(place.getEstablecimientoId()));
+                if (place.getBitmap() != null)
+                    marker.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(place.getBitmap(), 250, 250)));
+
+                mMap.addMarker(marker);
+            }
+
+            if (userMarkerOptions != null)
+                mMap.addMarker(userMarkerOptions);
+        }
+
+        public Bitmap resizeMapIcons(Bitmap icon, int width, int height) {
+
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(icon, width, height, false);
+            return resizedBitmap;
+        }
     }
 }
 
